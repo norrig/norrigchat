@@ -1,6 +1,5 @@
 from flask import Flask, render_template, make_response, request, redirect, url_for, jsonify
 from flask_socketio import SocketIO, send
-from werkzeug.datastructures import ImmutableMultiDict
 import bcrypt, jwt, time, random
 from cryptography.fernet import Fernet
 import json
@@ -12,7 +11,7 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 
 HOST_NAME = "localhost"
 HOST_PORT = 5000
-JWT_KEY = "secret!123"
+JWT_KEY = "secret!123" 
 JWT_ISS = "norrig-sec"
 JWT_ALGO = "HS512"
 
@@ -25,29 +24,19 @@ USERS = {
 }
 
 def jwtSign(email):
-	# https://stackoverflow.com/questions/2511222/efficiently-generate-a-16-character-alphanumeric-string
-	rnd = "".join(random.choice("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!@#$%^_-") for i in range(24))
+	random = "".join(random.choice("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!@#$%^_-") for i in range(24))
 	now = int(time.time())
 	return jwt.encode({
-		"iat" : now, # ISSUED AT - TIME WHEN TOKEN IS GENERATED
-		"nbf" : now, # NOT BEFORE - WHEN THIS TOKEN IS CONSIDERED VALID
-		"exp" : now + 3600, # EXPIRY - 1 HR (3600 SECS) FROM NOW IN THIS EXAMPLE
-		"jti" : rnd, # RANDOM JSON TOKEN ID
-		"iss" : JWT_ISS, # ISSUER
-		# WHATEVER ELSE YOU WANT TO PUT
+		"iat" : now, "nbf" : now, "exp" : now + 4200, "jti" : random, "iss" : JWT_ISS, 
 		"data" : { "email" : email }
 	}, JWT_KEY, algorithm=JWT_ALGO)
 
-# (D2) VERIFY JWT
 def jwtVerify(cookies):
 	try:
 		token = cookies.get("JWT")
 		print("debug token:")
 		print(token)
 		decoded = jwt.decode(token, JWT_KEY, algorithms=[JWT_ALGO])
-		# DO WHATEVER YOU WANT WITH THE DECODED TOKEN
-		print("decoded")
-		print(decoded)
 		return True
 	except:
 		return False
@@ -58,7 +47,6 @@ def encrypt_msg(userName, userMessage, userkey):
 	fernet = Fernet(userkey)
 	encMessage = fernet.encrypt(userMessage.encode())
 	print("Krypteret besked "+str(encMessage))
-	#msg = userName+": "+str(encMessage) ##Vi putter det hele tilbage i rigtigt format
 	msg = userName+": "+str(encMessage)+": "+"lol" ##Vi putter det hele tilbage i rigtigt format
 	print(msg)
 	print("type debug")
@@ -75,8 +63,8 @@ def decrypt_msg():
 		print(form)
 		#form = json.load(form)
 	if len(form) > 2:
-		#E-aiNIDAVS2IK_E1WRXQ0zGgnUUI34zoZydHK962y2k=
-		print("!!!decrypting")
+		#E-aiNIDAVS2IK_E1WRXQ0zGgnUUI34zoZydHK962y2k= example nøgle
+		print("!!!decrypting") 
 		key = form[3]
 		msg = form[1].strip()
 		msg = msg[1:]
@@ -159,8 +147,8 @@ def lin():
 	print(password)	
 
 	if valid:
-		valid = bcrypt.checkpw(data["password"].encode("utf-8"), USERS[data["email"]])
-	msg = "OK" if valid else "Invalid email/password"
+		valid = bcrypt.checkpw(data["password"].encode("utf-8"), USERS[data["email"]]) #valid?
+	msg = "ok login" if valid else "forkert login"
 	res = make_response(msg, 200)
 	if valid:
 		res.set_cookie("JWT", jwtSign(data["email"]))
@@ -170,7 +158,7 @@ def lin():
 		print("username= "+str(username))
 	return res   	
 
-@app.route("/lout", methods=["POST", "GET"])
+@app.route("/lout", methods=["POST", "GET"]) #behøver nok kun POST
 def lout():
 	print("Sletter cookies")
 	res = make_response(redirect(url_for('default_page')))
@@ -186,7 +174,7 @@ def default_page():
 		print("velkommen")
 		return render_template("frontend.html", email=username)
 	else:
-		print("forkert ps / ikke logget ind")
+		print("forkert pw / ikke logget ind")
 		return render_template("login.html")	
 	
 
