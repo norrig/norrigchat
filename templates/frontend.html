@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    
+    <title>Norrig Chat</title>
+
+    <script
+  src="https://code.jquery.com/jquery-3.6.0.min.js"
+  integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+  crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+</head>
+<div id = "all">
+<body style="text-align: center; font-family: Arial, Helvetica, sans-serif; font-size:14pt">
+    <script type="text/javascript">
+        var encrypt = 0;
+
+        $(document).ready(function() {
+            var socket = io.connect("http://localhost:5000");
+
+            socket.on('connect', function() {
+                socket.send("User connected!");
+            });
+
+            socket.on('message', function(data){
+            	console.log(encrypt);
+            	console.log(data);
+            	console.log(typeof data);
+            	var count = (data.match(/:/g) || []).length;
+            	console.log("count:")
+            	console.log(count)
+            	if (encrypt == 0 && count == 1){
+                $('#messages').append($('<p>').text(data));
+            	}
+
+            	else{
+            		var nyMsg = JSON.parse(data);
+            		nyMsg = data.split(":");
+            		console.log(nyMsg);
+            		if(nyMsg.length == 3){
+            			console.log('Modtog krypteret besked, pakker ud.');
+	            		console.log('keeeeeeey:');
+	            		console.log(nyMsg);
+	            		console.log("keeeeeeey:");
+	            		nyMsg.push($('#key').val());
+	            		console.log($('#key').val());
+	            		//console.log(typeof nyMsg);
+	            		//nyMsg = JSON.stringify(nyMsg);
+	            		console.log(typeof nyMsg);
+	            		console.log(nyMsg[0]);
+	            		//console.log(nyMsg[1]);
+	            		//console.log(nyMsg[2]);
+	            		//console.log(nyMsg[3]);
+
+						$.ajax({
+						    type : "POST",
+						    url : '/decrypt_msg_route',
+						    dataType: "json",
+						    data: JSON.stringify(nyMsg),
+						    contentType: 'application/json;charset=UTF-8',
+						    success: function (data) {
+						        console.log(data);
+						        $('#messages').append($('<p>').text('Encrypted message:'+' '+data[0]+' - '+data[1]));
+						        }
+						    });
+
+	            		//nyMsg = nyMsg.split(":");
+	            		console.log("tesssst")
+	            		console.log(nyMsg)
+
+
+
+
+
+
+
+	            		
+	            	}
+	            	else{
+	            		console.log('Modtog ikke krypteret besked, rejecting.');
+	            	}
+
+            	}
+            });
+
+            $('#sendBtn').on('click', function(){
+            	if (encrypt == 0) {
+                socket.send($('#username').val() +': ' + $('#message').val());
+                $('#message').val('');
+            	}
+            	else{
+                socket.send($('#username').val() +': ' + $('#message').val() + ': ' + $('#key').val());
+                $('#message').val('');            		
+            	}
+            });            
+
+            $('#encryptBtn').on('click', function(){
+                 encrypt = 1;
+                 console.log(encrypt);
+                 document.querySelector('#sendBtn').innerText = 'Send krypteret';
+                 console.log("encrypt btn knap");
+                 document.body.style.backgroundColor = "black";
+                 document.getElementById("all").style.color = "white";
+            });
+
+
+            $('#logOutBtn').on('click', function(){
+                 location.href = '/lout';
+            });
+
+        })
+    </script>
+    
+<div id="messages" style="margin: 0 auto; width: 50%; text-align: left">
+
+	<div id="controls" style="position:absolute; bottom:8%; margin: 0 auto; width: 80%; text-align: left;">
+		<input type="text" id="username" value="{{ email }}" readonly style="position:relative;">
+		<input type="text" id="message" placeholder="Beskeden" style="position:relative;">
+		<button id="sendBtn" class="btn btn-outline-success" style="position:relative;">Send ukrypteret</button>
+		<button id="logOutBtn" class="btn btn-outline-primary" style="position:relative;">Log ud</button>
+	
+	</div>
+		<div id="encrypt" style="position:absolute; bottom:1%; margin: 0 auto; width: 80%; text-align: left;">
+			<h3 style="font-size: 12pt"> (Valgfrit) Her kan du indtaste en krypteringsnøgle. Både modtager og afsender skal bruge samme nøgle </h3>
+			<input type="text" id="key" placeholder="Krypterings nøgle?" style="position:relative;">
+			<button id="encryptBtn" class="btn btn-outline-primary" style="position:relative;">Aktiver beskedskryptering</button>
+		</div>
+
+</div>
+
+</div>
+</body>
+</html>
