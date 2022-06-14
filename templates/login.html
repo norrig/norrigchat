@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Login Page</title>
+    <title>Login her</title>
     <link rel="stylesheet" href="static/login.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">    
     <script src="static/login.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
      <script
@@ -11,12 +12,20 @@
   crossorigin="anonymous"></script>
 
   </head>
-  <body>
-    <form id="login" onsubmit="return login()">
-      <h2>Log ind her</h2>
+  <body style="background-color: blue">
+    <div class="container">
+    <div id="desc" style="position: top; color:white; letter-spacing: 3px;">
+      <h2> Velkommen til NorrigChat </h2>
+      <h3> Login eksempler mm. ligger i backend.py </h3>
+    </div>
+   <div id="nedre"> 
+    <form id="login" onsubmit="return login()" style="color:white">
+      <h6>prøv f.eks: user1@eaaa.dk og 12345 som kode</h6>
       <input type="email" placeholder="Email/id" name="email" required value="user1@eaaa.dk"/>
       <input type="password" placeholder="Password" name="password" required value="12345"/>
       <input type="submit" value="log in"/>
     </form>
+   </div> 
+  </div> 
   </body>
 </html>
