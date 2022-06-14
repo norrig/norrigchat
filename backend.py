@@ -24,10 +24,11 @@ USERS = {
 }
 
 def jwtSign(email):
-	random = "".join(random.choice("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!@#$%^_-") for i in range(24))
+	rdm = "".join(random.choice("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!@#$%^_-") for i in range(24))
 	now = int(time.time())
+	print(now)
 	return jwt.encode({
-		"iat" : now, "nbf" : now, "exp" : now + 4200, "jti" : random, "iss" : JWT_ISS, 
+		"iat" : now, "nbf" : now, "exp" : now + 4200, "jti" : rdm, "iss" : JWT_ISS, 
 		"data" : { "email" : email }
 	}, JWT_KEY, algorithm=JWT_ALGO)
 
@@ -131,8 +132,11 @@ def handle_message(message):
 def login():
 
 	if jwtVerify(request.cookies):
+		print("Verify good")
 		return redirect(url_for("admin"))
+
 	else:
+		print("Verify problems")
 		return render_template("login.html")	
 
 @app.route("/lin", methods=["POST"])
